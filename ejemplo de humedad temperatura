@@ -1,0 +1,33 @@
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+
+#define DHTPIN 4        // Usamos GPIO4 (ver pinout de tu ESP32)
+#define DHTTYPE DHT11   // Tipo de sensor
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("🚀 Iniciando lectura DHT11...");
+  dht.begin();
+}
+
+void loop() {
+  Serial.println("📡 Intentando leer datos...");
+  
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+
+  if (isnan(h) || isnan(t)) {
+    Serial.println("❌ Error al leer datos del DHT11");
+  } else {
+    Serial.print("🌡 Temp: ");
+    Serial.print(t);
+    Serial.print(" °C   💧 Hum: ");
+    Serial.print(h);
+    Serial.println(" %");
+  }
+
+  delay(2000); // El DHT11 solo permite lecturas cada ~2 segundos
+}
