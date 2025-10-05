@@ -1,0 +1,47 @@
+/*
+   ESP32 + SENSOR DE LLUVIA YL-83
+   Autor: ChatGPT
+   Octubre 2025
+
+   Lee la salida analógica y digital del sensor de lluvia YL-83.
+   Enciende el LED interno si se detecta humedad o lluvia.
+   Muestra los valores por el monitor serial.
+*/
+
+// === CONFIGURACIÓN DE PINES ===
+const int pinLED = 2;        // LED integrado en el ESP32
+const int pinDigital = 27;   // DO -> GPIO27
+const int pinAnalogico = 34; // AO -> GPIO34 (entrada analógica)
+
+// === CONFIGURACIÓN ===
+void setup() {
+  Serial.begin(115200);
+  pinMode(pinLED, OUTPUT);
+  pinMode(pinDigital, INPUT);
+  delay(1000);
+
+  Serial.println("=== SENSOR DE LLUVIA YL-83 INICIADO ===");
+  Serial.println("Coloca gotas de agua sobre el sensor...");
+  Serial.println("----------------------------------------");
+}
+
+// === BUCLE PRINCIPAL ===
+void loop() {
+  int valorDigital = digitalRead(pinDigital);
+  int valorAnalogico = analogRead(pinAnalogico);
+
+  // Mostrar valores por monitor serial
+  Serial.print("Digital: ");
+  Serial.print(valorDigital);
+  Serial.print(" | Analogico: ");
+  Serial.println(valorAnalogico);
+
+  // Encender LED cuando se detecte humedad o lluvia
+  if (valorDigital == LOW) { // LOW = detecta agua
+    digitalWrite(pinLED, HIGH);
+  } else {
+    digitalWrite(pinLED, LOW);
+  }
+
+  delay(500); // medio segundo entre lecturas
+}
