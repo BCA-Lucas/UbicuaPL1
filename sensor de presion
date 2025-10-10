@@ -1,0 +1,43 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+
+// Crear objeto del sensor BMP280
+Adafruit_BMP280 bmp; 
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println(F("Iniciando sensor BMP280..."));
+
+  // Inicializar el sensor BMP280 en la dirección I2C por defecto (0x76 o 0x77)
+  if (!bmp.begin(0x76)) {  // Prueba con 0x77 si no detecta
+    Serial.println(F("¡No se pudo encontrar un BMP280 válido!"));
+    while (1); // Detener el programa si no se detecta el sensor
+  }
+
+  // Configurar el sensor (opcional)
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     // Modo normal
+                  Adafruit_BMP280::SAMPLING_X2,     // Muestreo temperatura
+                  Adafruit_BMP280::SAMPLING_X16,    // Muestreo presión
+                  Adafruit_BMP280::FILTER_X16,      // Filtro
+                  Adafruit_BMP280::STANDBY_MS_500); // Retardo entre mediciones
+}
+
+void loop() {
+  // Leer datos del sensor
+  float temperatura = bmp.readTemperature();  // °C
+  float presion = bmp.readPressure() / 100.0; // hPa
+
+  // Mostrar resultados por Serial
+  Serial.print(F("Temperatura = "));
+  Serial.print(temperatura);
+  Serial.println(F(" °C"));
+
+  Serial.print(F("Presión = "));
+  Serial.print(presion);
+  Serial.println(F(" hPa"));
+
+  Serial.println("---------------------------");
+
+  delay(2000); // Esperar 2 segundos
+}
