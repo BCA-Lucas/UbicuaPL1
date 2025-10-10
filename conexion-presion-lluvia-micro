@@ -1,0 +1,152 @@
+/*
+  ========================================================
+  PROYECTO: Estación ambiental con ESP32
+  Sensores:
+    - BMP280 → Temperatura y presión
+    - YL-83  → Sensor de lluvia (analógico + digital)
+    - KY-037 → Sensor de sonido (analógico + digital)
+    - LED de estado
+  Autor: ChatGPT
+  Fecha: Octubre 2025
+  ========================================================
+*/
+
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+
+// ========================================================
+// --- CONFIGURACIÓN DE PINES ---
+// ========================================================
+
+// BMP280 usa I2C estándar del ESP32:
+// SDA = GPIO21, SCL = GPIO22
+
+// === Sensor de lluvia YL-83 ===
+const int PIN_LLU_D = 27;   // DO -> GPIO27
+const int PIN_LLU_A = 34;   // AO -> GPIO34 (entrada analógica)
+const int PIN_LED_LLUVIA = 2; // LED integrado (GPIO2)
+
+// === Sensor de sonido KY-037 ===
+const int PIN_SON_A = 33;   // AO -> GPIO33
+const int PIN_SON_D = 25;   // DO -> GPIO25
+const int PIN_LED_SONIDO = 4; // LED externo opcional
+
+// ========================================================
+// --- OBJETO DEL SENSOR BMP280 ---
+// ========================================================
+Adafruit_BMP280 bmp;
+
+// Variables para el KY-037
+unsigned long lastPrint = 0;
+const unsigned long PRINT_INTERVAL = 500; // ms
+const int N_SAMPLES = 8; // para promedio analógico
+
+// ========================================================
+// --- SETUP ---
+// ========================================================
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  Serial.println("=========================================");
+  Serial.println("  INICIANDO ESTACIÓN AMBIENTAL ESP32  ");
+  Serial.println("=========================================");
+
+  // --- Pines de lluvia ---
+  pinMode(PIN_LLU_D, INPUT);
+  pinMode(PIN_LED_LLUVIA, OUTPUT);
+
+  // --- Pines de sonido ---
+  pinMode(PIN_SON_D, INPUT);
+  pinMode(PIN_LED_SONIDO, OUTPUT);
+
+  analogReadResolution(12);                // 12 bits (0–4095)
+  analogSetPinAttenuation(PIN_LLU_A, ADC_11db); // hasta ~3.3V
+  analogSetPinAttenuation(PIN_SON_A, ADC_11db);
+
+  // --- Inicializar BMP280 ---
+  Serial.println("Iniciando sensor BMP280...");
+  if (!bmp.begin(0x76)) { // probar 0x77 si no lo detecta
+    Serial.println("¡No se encontró un BMP280 válido!");
+    while (1);
+  }
+
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
+                  Adafruit_BMP280::SAMPLING_X2,
+                  Adafruit_BMP280::SAMPLING_X16,
+                  Adafruit_BMP280::FILTER_X16,
+                  Adafruit_BMP280::STANDBY_MS_500);
+
+  Serial.println("Sistema iniciado correctamente.\n");
+}
+
+// ========================================================
+// --- FUNCIONES AUXILIARES ---
+// ========================================================
+
+// Promedio de lecturas analógicas
+int promedioAnalogico(int pin) {
+  long suma = 0;
+  for (int i = 0; i < N_SAMPLES; i++) {
+    suma += analogRead(pin);
+    delay(2);
+  }
+  return suma / N_SAMPLES;
+}
+
+// ========================================================
+// --- LOOP PRINCIPAL ---
+// ========================================================
+void loop() {
+  unsigned long now = millis();
+
+  // --- BMP280 ---
+  float temperatura = bmp.readTemperature();  // °C
+  float presion = bmp.readPressure() / 100.0; // hPa
+
+  // --- Sensor de lluvia YL-83 ---
+  int lluviaDigital = digitalRead(PIN_LLU_D);
+  int lluviaAnalogica = promedioAnalogico(PIN_LLU_A);
+  digitalWrite(PIN_LED_LLUVIA, (lluviaDigital == LOW)); // LED ON si hay agua
+
+  // --- Sensor de sonido KY-037 ---
+  int sonidoDigital = digitalRead(PIN_SON_D);
+  int sonidoAnalogico = promedioAnalogico(PIN_SON_A);
+  float sonidoVoltaje = (sonidoAnalogico * 3.3) / 4095.0;
+  digitalWrite(PIN_LED_SONIDO, sonidoDigital ? HIGH : LOW);
+
+  // --- Mostrar datos cada cierto tiempo ---
+  if (now - lastPrint >= PRINT_INTERVAL) {
+    lastPrint = now;
+
+    Serial.println("========== LECTURAS ==========");
+    Serial.print("Temperatura: ");
+    Serial.print(temperatura);
+    Serial.println(" °C");
+
+    Serial.print("Presión: ");
+    Serial.print(presion);
+    Serial.println(" hPa");
+
+    Serial.print("Lluvia → Digital: ");
+    Serial.print(lluviaDigital);
+    Serial.print(" | Analógica: ");
+    Serial.println(lluviaAnalogica);
+    if (lluviaDigital == LOW)
+      Serial.println("🌧️  Lluvia detectada");
+    else
+      Serial.println("☀️  Sin lluvia");
+
+    Serial.print("Sonido → DO: ");
+    Serial.print(sonidoDigital);
+    Serial.print(" | AO: ");
+    Serial.print(sonidoAnalogico);
+    Serial.print(" (");
+    Serial.print(sonidoVoltaje, 2);
+    Serial.println(" V)");
+    Serial.println("-----------------------------");
+  }
+
+  delay(200); // estabilidad
+}
