@@ -7,13 +7,11 @@
 // ========================================================
 
 // === Pines I2C (Bus 1: BMP280) ===
-// Reintroducidos para Bit-Banging I2C.
-const int BMP_SDA = 22; 
-const int BMP_SCL = 23; 
+const int BMP_SDA = 23; 
+const int BMP_SCL = 22; 
 
 // === Pines I2C (Bus 2: BH1750) ===
-// Reintroducidos para Bit-Banging I2C.
-const int BH_SDA = 18; 
+const int BH_SDA = 32; 
 const int BH_SCL = 35; 
 
 // === Pines Analógicos y Digitales ===
@@ -57,7 +55,7 @@ const char* NEIGHBORHOOD = "Sol";
 const char* WIFI_SSID = "Orden"; 
 const char* WIFI_PASSWORD = "rT123456";
 
-// Configuración MQTT (Acceso Anónimo)
+// Configuración MQTT
 const char* MQTT_SERVER = "172.20.10.3"; 
 const int MQTT_PORT = 1883;
 const char* MQTT_USER = ""; 
