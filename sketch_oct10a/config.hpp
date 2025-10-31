@@ -1,13 +1,12 @@
-// config.hpp
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
 #include <Arduino.h>
 
-// ========================================================
-// --- CONFIGURACIÓN DE PINES (USUARIO) ---
-// ========================================================
+extern const int I2C_SDA;
+extern const int I2C_SCL;
 
+<<<<<<< Updated upstream
 // === Pines I2C (Bus Principal: BMP280) ===
 extern const int BMP_SDA; // 23
 extern const int BMP_SCL; // 22
@@ -37,6 +36,24 @@ extern const float UV_SENSITIVITY;
 extern const unsigned long LECTURA_INTERVALO; 
 extern const int N_SAMPLES; 
 
+=======
+extern const int DHTPIN;
+extern const int PIN_LLU_D;
+extern const int PIN_LLU_A;
+extern const int PIN_SON_A;
+extern const int PIN_SON_D;
+extern const int PIN_UV_A;
+extern const int PIN_LED_RUIDO;
+
+#define DHTTYPE DHT11
+
+extern const int UMBRAL_VALOR_ALTO;
+extern const float V_REF;
+extern const float V_UV_CERO;
+extern const float UV_SENSITIVITY;
+extern const unsigned long LECTURA_INTERVALO;
+extern const int N_SAMPLES;
+>>>>>>> Stashed changes
 extern const char* SENSOR_ID;
 extern const char* SENSOR_TYPE;
 extern const char* STREET_ID;
@@ -49,8 +66,8 @@ extern const char* WIFI_SSID;
 extern const char* WIFI_PASSWORD;
 extern const char* MQTT_SERVER;
 extern const int MQTT_PORT;
-extern const char* MQTT_USER; 
-extern const char* MQTT_PASS; 
+extern const char* MQTT_USER;
+extern const char* MQTT_PASS;
 extern const char* TOPIC_SUB;
 extern const char* TOPIC_PUB;
 
