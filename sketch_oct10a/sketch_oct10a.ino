@@ -1,7 +1,7 @@
 #include "config.hpp"
 #include "Sensores.hpp"
 #include "Comunicaciones.hpp"
-#include "StatusNotifier.hpp" // <-- ¡Inclusión actualizada!
+#include "StatusNotifier.hpp" // <-- ¡Inclusión de la nueva clase!
 
 SensorManager sensorManager;
 CommsManager commsManager;
@@ -33,7 +33,8 @@ void setup() {
 void loop() {
   commsManager.mantenerConexion();
   
-  // Llama a esta función en cada ciclo para manejar el apagado del LED y la limpieza de la pantalla.
+  // Verifica el temporizador y APAGA el LED si el tiempo de parpadeo ha terminado.
+  // La información de la pantalla se mantiene visible.
   statusNotifier.manejarParpadeo(); 
   
   unsigned long now = millis();
@@ -56,5 +57,5 @@ void loop() {
     Serial.println("-------------------------------------------");
   }
 
-  delay(100); 
+  delay(1); 
 }

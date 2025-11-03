@@ -1,6 +1,6 @@
 #include "Comunicaciones.hpp"
 #include "config.hpp"
-#include "StatusNotifier.hpp" // <-- ¡Inclusión actualizada!
+#include "StatusNotifier.hpp" // <-- Inclusión de la clase de notificaciones
 
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -14,7 +14,9 @@ const int daylightOffset_sec = 3600;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-extern StatusNotifier statusNotifier; // <-- ¡Declaración externa actualizada!
+// Dependencias externas necesarias para el callback
+extern StatusNotifier statusNotifier; 
+extern CommsManager commsManager; // Para obtener el timestamp en el callback
 
 // ========================================================
 // === CALLBACK DE MQTT ===
@@ -30,13 +32,17 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
     }
     Serial.println(mensaje);
 
-    // === Control del LED/Pantalla al recibir cualquier paquete ===
+    // === Lógica de Notificación al recibir cualquier paquete ===
     if (String(topic) == TOPIC_SUB) {
         
-        // ** ACTUALIZA EL LED Y LA PANTALLA OLED **
-        statusNotifier.notificarRecepcion(); 
-        Serial.println("💡 LED y pantalla activados por paquete recibido.");
+        // 1. Obtiene la hora actual
+        String current_time = commsManager.obtenerTiempoISO8601(); 
+        
+        // 2. Notifica a la pantalla/LED, actualizando la hora y el contador
+        statusNotifier.notificarRecepcion(current_time); 
+        Serial.println("💡 LED y pantalla actualizados con hora de recepción.");
 
+        // === Control de comandos específicos (mantenido) ===
         if (mensaje.equalsIgnoreCase("LED_OFF")) {
             // Si el comando es APAGAR, lo apagamos inmediatamente
             digitalWrite(PIN_LED_RUIDO, LOW); 
@@ -51,6 +57,7 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
 
 // ========================================================
 // === CONEXIÓN WIFI ===
+// ... código setup_wifi() sin cambios ...
 // ========================================================
 void CommsManager::setup_wifi() {
     delay(10);
@@ -72,6 +79,7 @@ void CommsManager::setup_wifi() {
 
 // ========================================================
 // === CONEXIÓN MQTT ===
+// ... código reconnect_mqtt() sin cambios ...
 // ========================================================
 void CommsManager::reconnect_mqtt() {
     while (!client.connected()) {
@@ -92,6 +100,7 @@ void CommsManager::reconnect_mqtt() {
 
 // ========================================================
 // === NTP ===
+// ... código inicializarNTP() sin cambios ...
 // ========================================================
 void CommsManager::inicializarNTP() {
     Serial.println("-> PASO 1.1: Configurando NTP...");
@@ -117,6 +126,7 @@ String CommsManager::obtenerTiempoISO8601() {
 
 // ========================================================
 // === INICIALIZACIÓN Y PUBLICACIÓN ===
+// ... código inicializarComunicaciones() y mantenerConexion() sin cambios ...
 // ========================================================
 void CommsManager::inicializarComunicaciones() {
     setup_wifi();
