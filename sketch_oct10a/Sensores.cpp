@@ -117,7 +117,6 @@ String SensorManager::generarJSON(const SensorData& data) {
     json += "\"humidity_percent\":" + String(data.humidity_percent, 2) + ",";
     json += "\"atmospheric_pressure_hpa\":" + String(data.atmospheric_pressure_hpa, 2) + ",";
     json += "\"uv_index\":" + String(data.uv_index, 1) + ",";
-    json += "\"luminosity_lux\":" + String(data.luminosity_lux, 2) + ",";
     json += "\"rain_detected\":" + String(data.rain_detected) + ",";
     json += "\"noise_analog\":" + String(data.noise_analog);
     json += "}}";
