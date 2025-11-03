@@ -44,13 +44,13 @@ const char* NEIGHBORHOOD = "Sol";
 // ========================================================
 // === WiFi ===
 // ========================================================
-const char* WIFI_SSID = "REDWIFI_3yEe";
-const char* WIFI_PASSWORD = "VictorJorge_123";
+const char* WIFI_SSID = "cubicua";
+const char* WIFI_PASSWORD = "";
 
 // ========================================================
 // === MQTT ===
 // ========================================================
-const char* MQTT_SERVER = "192.168.0.33";
+const char* MQTT_SERVER = "192.168.1.69";
 const int MQTT_PORT = 1883;
 const char* MQTT_USER = "";
 const char* MQTT_PASS = "";
