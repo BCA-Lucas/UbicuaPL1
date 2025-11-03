@@ -1,6 +1,6 @@
 #include "Comunicaciones.hpp"
 #include "config.hpp"
-#include "LedNotifier.hpp" // <-- INCLUSIÓN DE LA NUEVA CLASE
+#include "StatusNotifier.hpp" // <-- ¡Inclusión actualizada!
 
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -14,7 +14,7 @@ const int daylightOffset_sec = 3600;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-extern LedNotifier ledNotifier; // <-- DECLARACIÓN EXTERNA DE LA INSTANCIA
+extern StatusNotifier statusNotifier; // <-- ¡Declaración externa actualizada!
 
 // ========================================================
 // === CALLBACK DE MQTT ===
@@ -30,22 +30,21 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
     }
     Serial.println(mensaje);
 
-    // === Control del LED integrado (GPIO 2) ===
+    // === Control del LED/Pantalla al recibir cualquier paquete ===
     if (String(topic) == TOPIC_SUB) {
         
-        // ** NUEVA LÍNEA: ENCIENDE EL LED E INICIA EL TEMPORIZADOR DE PARPADEO **
-        ledNotifier.notificarRecepcion(); 
-        Serial.println("💡 LED (GPIO 2) ACTIVADO por paquete recibido.");
+        // ** ACTUALIZA EL LED Y LA PANTALLA OLED **
+        statusNotifier.notificarRecepcion(); 
+        Serial.println("💡 LED y pantalla activados por paquete recibido.");
 
         if (mensaje.equalsIgnoreCase("LED_OFF")) {
             // Si el comando es APAGAR, lo apagamos inmediatamente
             digitalWrite(PIN_LED_RUIDO, LOW); 
             Serial.println("💡 LED (GPIO 2) APAGADO por comando 'LED_OFF'.");
         } else if (mensaje.equalsIgnoreCase("LED_ON")) {
-            // Mantiene el LED encendido (la función notificarRecepcion() ya lo encendió)
             Serial.println("Comando 'LED_ON' recibido.");
         } else {
-            Serial.println("⚠️ Comando desconocido, se activó el parpadeo de recepción.");
+            Serial.println("⚠️ Comando desconocido, se activó la notificación de recepción.");
         }
     }
 }
