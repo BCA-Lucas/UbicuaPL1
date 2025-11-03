@@ -123,18 +123,17 @@ String SensorManager::generarJSON(const SensorData& data) {
     json += "\"humidity_percent\":" + String(data.humidity_percent, 2) + ",";
     json += "\"atmospheric_pressure_hpa\":" + String(data.atmospheric_pressure_hpa, 2) + ",";
     json += "\"uv_index\":" + String(data.uv_index, 1) + ",";
-<<<<<<< Updated upstream
-=======
+
     // Campo luminosity_lux ELIMINADO
->>>>>>> Stashed changes
+
     json += "\"rain_detected\":" + String(data.rain_detected) + ",";
     json += "\"noise_analog\":" + String(data.noise_analog);
     json += "}}";
 
     return json;
-<<<<<<< Updated upstream
+
 }
 
-=======
-}
->>>>>>> Stashed changes
+
+
+

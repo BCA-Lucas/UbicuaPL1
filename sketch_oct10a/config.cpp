@@ -34,7 +34,7 @@ const int N_SAMPLES = 8;
 // ========================================================
 // === Identificación del Dispositivo ===
 // ========================================================
-const char* SENSOR_IDS[] = {"BMP280", "YL-83", "KY-037", "DHT11", "ML8511", "BH1750"};
+const char* SENSOR_IDS[] = {"BMP280", "YL-83", "KY-037", "DHT11", "ML8511"};
 const int NUM_SENSORS = sizeof(SENSOR_IDS) / sizeof(SENSOR_IDS[0]);
 const char* SENSOR_TYPE = "weather";
 const char* STREET_ID = "ST_2091";
@@ -47,13 +47,13 @@ const char* NEIGHBORHOOD = "San Blas-Canillejas";
 // ========================================================
 // === WiFi ===
 // ========================================================
-const char* WIFI_SSID = "REDWIFI_3yEe";
-const char* WIFI_PASSWORD = "VictorJorge_123";
+const char* WIFI_SSID = "cubicua";
+const char* WIFI_PASSWORD = "";
 
 // ========================================================
 // === MQTT ===
 // ========================================================
-const char* MQTT_SERVER = "192.168.0.33";
+const char* MQTT_SERVER = "192.168.1.131";
 const int MQTT_PORT = 1883;
 const char* MQTT_USER = "";
 const char* MQTT_PASS = "";
