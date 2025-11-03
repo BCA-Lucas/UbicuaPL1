@@ -12,20 +12,21 @@
 class StatusNotifier {
 public:
     void inicializar(int ledPin); 
-    // Modificado para aceptar la hora y el número de paquete
-    void notificarRecepcion(const String& timestamp); 
+    // Modificado para aceptar la hora Y el mensaje completo
+    void notificarRecepcion(const String& timestamp, const String& message); 
     void manejarParpadeo();    
     
 private:
     int _ledPin;
     unsigned long _ledOnTime = 0;
     const unsigned long LED_DURATION_MS = 200; 
-    long _packageCounter = 0; // Contador de paquetes
-    String _lastTimestamp = "N/A"; // Almacena la hora del último paquete
+    long _packageCounter = 0; 
+    String _lastTimestamp = "N/A"; 
+    String _lastMessage = "Esperando..."; // <-- Nuevo: Almacena el contenido del mensaje
 
     Adafruit_SSD1306 display = Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-    void mostrarEstadoPersistente(); // Nueva función de visualización
+    void mostrarEstadoPersistente(); 
 };
 
 #endif

@@ -32,19 +32,17 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
     }
     Serial.println(mensaje);
 
-    // === Lógica de Notificación al recibir cualquier paquete ===
     if (String(topic) == TOPIC_SUB) {
         
         // 1. Obtiene la hora actual
         String current_time = commsManager.obtenerTiempoISO8601(); 
         
-        // 2. Notifica a la pantalla/LED, actualizando la hora y el contador
-        statusNotifier.notificarRecepcion(current_time); 
-        Serial.println("💡 LED y pantalla actualizados con hora de recepción.");
+        // 2. Notifica, pasando la hora Y el mensaje completo
+        statusNotifier.notificarRecepcion(current_time, mensaje); // <-- CAMBIO CLAVE AQUÍ
+        Serial.println("💡 LED y pantalla actualizados con hora y contenido.");
 
         // === Control de comandos específicos (mantenido) ===
         if (mensaje.equalsIgnoreCase("LED_OFF")) {
-            // Si el comando es APAGAR, lo apagamos inmediatamente
             digitalWrite(PIN_LED_RUIDO, LOW); 
             Serial.println("💡 LED (GPIO 2) APAGADO por comando 'LED_OFF'.");
         } else if (mensaje.equalsIgnoreCase("LED_ON")) {
@@ -57,7 +55,6 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
 
 // ========================================================
 // === CONEXIÓN WIFI ===
-// ... código setup_wifi() sin cambios ...
 // ========================================================
 void CommsManager::setup_wifi() {
     delay(10);
@@ -79,7 +76,6 @@ void CommsManager::setup_wifi() {
 
 // ========================================================
 // === CONEXIÓN MQTT ===
-// ... código reconnect_mqtt() sin cambios ...
 // ========================================================
 void CommsManager::reconnect_mqtt() {
     while (!client.connected()) {
@@ -100,7 +96,6 @@ void CommsManager::reconnect_mqtt() {
 
 // ========================================================
 // === NTP ===
-// ... código inicializarNTP() sin cambios ...
 // ========================================================
 void CommsManager::inicializarNTP() {
     Serial.println("-> PASO 1.1: Configurando NTP...");
@@ -126,7 +121,6 @@ String CommsManager::obtenerTiempoISO8601() {
 
 // ========================================================
 // === INICIALIZACIÓN Y PUBLICACIÓN ===
-// ... código inicializarComunicaciones() y mantenerConexion() sin cambios ...
 // ========================================================
 void CommsManager::inicializarComunicaciones() {
     setup_wifi();

@@ -4,19 +4,21 @@
 // === Pines I2C y Sensores ===
 // ========================================================
 
-const int BMP_SDA = 22;
-const int BMP_SCL = 23;
+// Bus I2C 1 (BMP280) - Bus Secundario (Wire1)
+const int BMP_SDA = 18; 
+const int BMP_SCL = 4;  
 
-const int BH_SDA = 22;
-const int BH_SCL = 23;
+// Bus I2C 2 (OLED) - Bus Principal (Wire)
+const int OLED_SDA = 26; // OLED SDA
+const int OLED_SCL = 27; // OLED SCL
 
-const int DHTPIN = 5;
+const int DHTPIN = 5; 
 const int PIN_LLU_D = 15;
 const int PIN_LLU_A = 19;
 const int PIN_SON_A = 35;
 const int PIN_SON_D = 36;
 const int PIN_UV_A = 34;
-const int PIN_LED_RUIDO = 2;
+const int PIN_LED_RUIDO = 2; 
 
 // ========================================================
 // === Constantes de Sensores ===
@@ -45,13 +47,13 @@ const char* NEIGHBORHOOD = "San Blas-Canillejas";
 // ========================================================
 // === WiFi ===
 // ========================================================
-const char* WIFI_SSID = "cubicua";
-const char* WIFI_PASSWORD = "";
+const char* WIFI_SSID = "REDWIFI_3yEe";
+const char* WIFI_PASSWORD = "VictorJorge_123";
 
 // ========================================================
 // === MQTT ===
 // ========================================================
-const char* MQTT_SERVER = "192.168.1.69";
+const char* MQTT_SERVER = "192.168.0.33";
 const int MQTT_PORT = 1883;
 const char* MQTT_USER = "";
 const char* MQTT_PASS = "";

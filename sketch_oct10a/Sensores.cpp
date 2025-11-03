@@ -7,14 +7,18 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BMP280.h>
 #include <DHT.h>
-#include <BH1750.h>
+// #include <BH1750.h> <--- ELIMINADO
 
 #define DHTTYPE DHT11
 
-Adafruit_BMP280 bmp;
+// Definición del bus secundario para el BMP280
+static TwoWire Wire1Bus(1); 
+
+// Inicialización del objeto BMP280
+Adafruit_BMP280 bmp(&Wire1Bus); 
+
 DHT dht(DHTPIN, DHTTYPE);
-BH1750 lightMeter;
-static TwoWire Wire1Bus(1); // Renombrado para evitar conflicto con librería Wire.cpp
+// BH1750 lightMeter; <--- ELIMINADO
 
 extern CommsManager commsManager;
 
@@ -42,28 +46,30 @@ void SensorManager::inicializarSensores() {
     analogSetPinAttenuation(PIN_SON_A, ADC_11db);
     analogSetPinAttenuation(PIN_UV_A, ADC_11db);
 
-    Wire.begin(BMP_SDA, BMP_SCL);
-    Wire1Bus.begin(BH_SDA, BH_SCL);
+    // 1. Inicializa el Bus Principal (Wire) para la OLED (GPIO 26/27)
+    Wire.begin(OLED_SDA, OLED_SCL); // SDA=26, SCL=27
+    
+    // 2. Inicializa el Bus Secundario (Wire1Bus) para el BMP280 (GPIO 18/4)
+    Wire1Bus.begin(BMP_SDA, BMP_SCL); 
 
-    if (!bmp.begin(0x76)) {
-        Serial.println("❌ BMP280 no detectado");
+    // Inicializa el BMP280 en el Bus 1 (Wire1Bus)
+    if (!bmp.begin(0x76)) { 
+        Serial.println("❌ BMP280 no detectado en Wire1Bus (18/4)");
     } else {
         bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,
-                        Adafruit_BMP280::SAMPLING_X2,
-                        Adafruit_BMP280::SAMPLING_X16,
-                        Adafruit_BMP280::FILTER_X16,
-                        Adafruit_BMP280::STANDBY_MS_500);
+                         Adafruit_BMP280::SAMPLING_X2,
+                         Adafruit_BMP280::SAMPLING_X16,
+                         Adafruit_BMP280::FILTER_X16,
+                         Adafruit_BMP280::STANDBY_MS_500);
     }
 
-    if (!lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE, 0x23, &Wire1Bus)) {
-        Serial.println("❌ Error al inicializar BH1750");
-    }
+    // Inicialización del BH1750 ELIMINADA
 
     dht.begin();
 }
 
 void SensorManager::leerTodos(SensorData& data) {
-    data.luminosity_lux = lightMeter.readLightLevel();
+    // data.luminosity_lux = lightMeter.readLightLevel(); <--- ELIMINADO
 
     float temp_bmp = bmp.readTemperature();
     float presion_bmp = bmp.readPressure() / 100.0;
@@ -117,10 +123,18 @@ String SensorManager::generarJSON(const SensorData& data) {
     json += "\"humidity_percent\":" + String(data.humidity_percent, 2) + ",";
     json += "\"atmospheric_pressure_hpa\":" + String(data.atmospheric_pressure_hpa, 2) + ",";
     json += "\"uv_index\":" + String(data.uv_index, 1) + ",";
+<<<<<<< Updated upstream
+=======
+    // Campo luminosity_lux ELIMINADO
+>>>>>>> Stashed changes
     json += "\"rain_detected\":" + String(data.rain_detected) + ",";
     json += "\"noise_analog\":" + String(data.noise_analog);
     json += "}}";
 
     return json;
+<<<<<<< Updated upstream
 }
 
+=======
+}
+>>>>>>> Stashed changes

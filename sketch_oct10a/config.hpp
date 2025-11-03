@@ -11,9 +11,9 @@
 extern const int BMP_SDA;
 extern const int BMP_SCL;
 
-// Bus I2C 2 (BH1750)
-extern const int BH_SDA;
-extern const int BH_SCL;
+// Bus I2C 2 (OLED) <-- PINES AÑADIDOS PARA RESOLVER EL ERROR
+extern const int OLED_SDA;
+extern const int OLED_SCL;
 
 // Pines Analógicos y Digitales
 extern const int DHTPIN;
