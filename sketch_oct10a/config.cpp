@@ -32,14 +32,15 @@ const int N_SAMPLES = 8;
 // ========================================================
 // === Identificación del Dispositivo ===
 // ========================================================
-const char* SENSOR_ID = "WS_001";
+const char* SENSOR_IDS[] = {"BMP280", "YL-83", "KY-037", "DHT11", "ML8511", "BH1750"};
+const int NUM_SENSORS = sizeof(SENSOR_IDS) / sizeof(SENSOR_IDS[0]);
 const char* SENSOR_TYPE = "weather";
-const char* STREET_ID = "ST_001";
+const char* STREET_ID = "ST_2091";
 
-const float LATITUDE = 40.416775;
-const float LONGITUDE = -3.703790;
-const char* DISTRICT = "Centro";
-const char* NEIGHBORHOOD = "Sol";
+const float LATITUDE = 40.4432621;
+const float LONGITUDE = -3.61235565;
+const char* DISTRICT = "San Blas-Canillejas";
+const char* NEIGHBORHOOD = "San Blas-Canillejas";
 
 // ========================================================
 // === WiFi ===

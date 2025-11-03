@@ -84,7 +84,6 @@ void SensorManager::leerTodos(SensorData& data) {
     data.noise_analog = promedioAnalogico(PIN_SON_A);
     digitalWrite(PIN_LED_RUIDO, data.noise_analog > UMBRAL_VALOR_ALTO ? HIGH : LOW);
     data.rain_detected = digitalRead(PIN_LLU_D);
-    data.air_quality_index = map(data.noise_analog, 0, 4095, 0, 500);
     data.wind_speed_kmh = 0.0;
     data.wind_direction_degrees = 0;
 }
@@ -94,25 +93,35 @@ String SensorManager::generarJSON(const SensorData& data) {
     String timestamp = commsManager.obtenerTiempoISO8601();
     if (timestamp.isEmpty()) timestamp = "2025-10-15T12:34:56Z";
 
-    json += "\"sensor_id\":\"" + String(SENSOR_ID) + "\",";
+    // ✅ Usamos los valores definidos globalmente
+    json += "\"sensor_id\":[";
+    for (int i = 0; i < NUM_SENSORS; i++) {
+        json += "\"" + String(SENSOR_IDS[i]) + "\"";
+        if (i < NUM_SENSORS - 1) json += ",";
+    }
+    json += "],";
+
     json += "\"sensor_type\":\"" + String(SENSOR_TYPE) + "\",";
     json += "\"street_id\":\"" + String(STREET_ID) + "\",";
     json += "\"timestamp\":\"" + timestamp + "\",";
+
     json += "\"location\":{";
     json += "\"latitude\":" + String(LATITUDE, 6) + ",";
     json += "\"longitude\":" + String(LONGITUDE, 6) + ",";
     json += "\"district\":\"" + String(DISTRICT) + "\",";
     json += "\"neighborhood\":\"" + String(NEIGHBORHOOD) + "\"";
     json += "},";
+
     json += "\"data\":{";
     json += "\"temperature_celsius\":" + String(data.temperature_celsius, 2) + ",";
     json += "\"humidity_percent\":" + String(data.humidity_percent, 2) + ",";
-    json += "\"air_quality_index\":" + String(data.air_quality_index) + ",";
     json += "\"atmospheric_pressure_hpa\":" + String(data.atmospheric_pressure_hpa, 2) + ",";
     json += "\"uv_index\":" + String(data.uv_index, 1) + ",";
     json += "\"luminosity_lux\":" + String(data.luminosity_lux, 2) + ",";
     json += "\"rain_detected\":" + String(data.rain_detected) + ",";
     json += "\"noise_analog\":" + String(data.noise_analog);
     json += "}}";
+
     return json;
 }
+

@@ -37,7 +37,8 @@ extern const int N_SAMPLES;
 // ========================================================
 // === Identificación del Dispositivo ===
 // ========================================================
-extern const char* SENSOR_ID;
+extern const char* SENSOR_IDS[];
+extern const int NUM_SENSORS;
 extern const char* SENSOR_TYPE;
 extern const char* STREET_ID;
 
