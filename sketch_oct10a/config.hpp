@@ -64,4 +64,10 @@ extern const char* MQTT_PASS;
 extern const char* TOPIC_SUB;
 extern const char* TOPIC_PUB;
 
+// === ENDPOINT HTTP PARA ENVIAR DATOS ===
+extern const char* HTTP_SERVER;
+extern const int HTTP_PORT;
+extern const char* HTTP_PATH;
+
+
 #endif
