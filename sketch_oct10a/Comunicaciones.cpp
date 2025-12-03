@@ -1,10 +1,9 @@
 #include "Comunicaciones.hpp"
 #include "config.hpp"
-#include "StatusNotifier.hpp"
+#include "StatusNotifier.hpp" // <-- Inclusión de la clase de notificaciones
 
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <HTTPClient.h>
 #include <time.h>
 #include <Arduino.h>
 
@@ -15,11 +14,12 @@ const int daylightOffset_sec = 3600;
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-extern StatusNotifier statusNotifier;
-extern CommsManager commsManager;
+// Dependencias externas necesarias para el callback
+extern StatusNotifier statusNotifier; 
+extern CommsManager commsManager; // Para obtener el timestamp en el callback
 
 // ========================================================
-// === CALLBACK MQTT (COMANDOS) ===
+// === CALLBACK DE MQTT ===
 // ========================================================
 void CommsManager::callback(char* topic, byte* message, unsigned int length) {
     Serial.print("📩 Mensaje recibido en [");
@@ -33,15 +33,22 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
     Serial.println(mensaje);
 
     if (String(topic) == TOPIC_SUB) {
+        
+        // 1. Obtiene la hora actual
+        String current_time = commsManager.obtenerTiempoISO8601(); 
+        
+        // 2. Notifica, pasando la hora Y el mensaje completo
+        statusNotifier.notificarRecepcion(current_time, mensaje); // <-- CAMBIO CLAVE AQUÍ
+        Serial.println("💡 LED y pantalla actualizados con hora y contenido.");
 
-        String current_time = commsManager.obtenerTiempoISO8601();
-        statusNotifier.notificarRecepcion(current_time, mensaje);
-
+        // === Control de comandos específicos (mantenido) ===
         if (mensaje.equalsIgnoreCase("LED_OFF")) {
-            digitalWrite(PIN_LED_RUIDO, LOW);
-        } 
-        else if (mensaje.equalsIgnoreCase("LED_ON")) {
-            digitalWrite(PIN_LED_RUIDO, HIGH);
+            digitalWrite(PIN_LED_RUIDO, LOW); 
+            Serial.println("💡 LED (GPIO 2) APAGADO por comando 'LED_OFF'.");
+        } else if (mensaje.equalsIgnoreCase("LED_ON")) {
+            Serial.println("Comando 'LED_ON' recibido.");
+        } else {
+            Serial.println("⚠️ Comando desconocido, se activó la notificación de recepción.");
         }
     }
 }
@@ -50,6 +57,8 @@ void CommsManager::callback(char* topic, byte* message, unsigned int length) {
 // === CONEXIÓN WIFI ===
 // ========================================================
 void CommsManager::setup_wifi() {
+    delay(10);
+    Serial.println();
     Serial.print("Conectando a ");
     Serial.println(WIFI_SSID);
 
@@ -61,7 +70,7 @@ void CommsManager::setup_wifi() {
     }
 
     Serial.println("\n✅ WiFi conectado");
-    Serial.print("IP: ");
+    Serial.print("Dirección IP: ");
     Serial.println(WiFi.localIP());
 }
 
@@ -72,14 +81,14 @@ void CommsManager::reconnect_mqtt() {
     while (!client.connected()) {
         Serial.print("Intentando conexión MQTT...");
         if (client.connect("ESP32Client", MQTT_USER, MQTT_PASS)) {
-            Serial.println("conectado");
+            Serial.println("conectado ✅");
             client.subscribe(TOPIC_SUB);
             Serial.print("📡 Suscrito a: ");
             Serial.println(TOPIC_SUB);
-        } 
-        else {
-            Serial.print("Error: ");
-            Serial.println(client.state());
+        } else {
+            Serial.print("falló, rc=");
+            Serial.print(client.state());
+            Serial.println(" intentando de nuevo en 5 segundos");
             delay(5000);
         }
     }
@@ -89,63 +98,32 @@ void CommsManager::reconnect_mqtt() {
 // === NTP ===
 // ========================================================
 void CommsManager::inicializarNTP() {
+    Serial.println("-> PASO 1.1: Configurando NTP...");
     configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
     struct tm timeinfo;
     if (!getLocalTime(&timeinfo, 10000)) {
-        Serial.println("❌ No se pudo sincronizar hora NTP");
-    }
-    else {
-        Serial.println("⏱ Hora NTP sincronizada");
+        Serial.println("-> PASO 1.2: ❌ No se pudo obtener la hora del servidor NTP.");
+    } else {
+        Serial.println("-> PASO 1.2: ✅ Hora sincronizada.");
     }
 }
 
 String CommsManager::obtenerTiempoISO8601() {
     struct tm timeinfo;
-    if (!getLocalTime(&timeinfo)) return "";
-
-    char buffer[25];
-    strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
-    return String(buffer);
+    if (!getLocalTime(&timeinfo)) {
+        return "";
+    }
+    char timeString[25];
+    strftime(timeString, sizeof(timeString), "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+    return String(timeString);
 }
 
 // ========================================================
-// === NUEVO: ENVÍO HTTP POST (JSON) ===
-// ========================================================
-bool CommsManager::enviarHTTP(const String& payload) {
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("❌ No hay WiFi, imposible enviar HTTP.");
-        return false;
-    }
-
-    HTTPClient http;
-
-    String url = "http://" + String(HTTP_SERVER) + ":" + String(HTTP_PORT) + String(HTTP_PATH);
-
-    http.begin(url);
-    http.addHeader("Content-Type", "application/json");
-
-    Serial.println("🌐 Enviando HTTP POST a: " + url);
-
-    int codigo = http.POST(payload);
-
-    if (codigo > 0) {
-        Serial.print("📨 Respuesta HTTP: ");
-        Serial.println(codigo);
-    } else {
-        Serial.println("❌ Error en POST: " + String(http.errorToString(codigo)));
-    }
-
-    http.end();
-    return codigo == 200 || codigo == 201;
-}
-
-// ========================================================
-// === INICIALIZACIÓN ===
+// === INICIALIZACIÓN Y PUBLICACIÓN ===
 // ========================================================
 void CommsManager::inicializarComunicaciones() {
     setup_wifi();
-
     client.setServer(MQTT_SERVER, MQTT_PORT);
     client.setCallback(callback);
 
@@ -156,14 +134,12 @@ void CommsManager::inicializarComunicaciones() {
 
 void CommsManager::mantenerConexion() {
     if (!client.connected()) {
+        Serial.println("🔴 Cliente MQTT desconectado. Intentando reconexión...");
         reconnect_mqtt();
     }
     client.loop();
 }
 
-// ========================================================
-// === PUBLICAR MQTT ===
-// ========================================================
 bool CommsManager::publicar(const char* topic, const String& payload) {
     return client.publish(topic, payload.c_str());
 }

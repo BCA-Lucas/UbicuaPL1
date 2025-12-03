@@ -1,7 +1,7 @@
 #include "config.hpp"
 #include "Sensores.hpp"
 #include "Comunicaciones.hpp"
-#include "StatusNotifier.hpp"
+#include "StatusNotifier.hpp" // <-- ¡Inclusión de la nueva clase!
 
 SensorManager sensorManager;
 CommsManager commsManager;
@@ -31,38 +31,31 @@ void setup() {
 }
 
 void loop() {
-    // Mantener conexión MQTT y procesar callbacks
-    commsManager.mantenerConexion();
+  commsManager.mantenerConexion();
+  
+  // Verifica el temporizador y APAGA el LED si el tiempo de parpadeo ha terminado.
+  // La información de la pantalla se mantiene visible.
+  statusNotifier.manejarParpadeo(); 
+  
+  unsigned long now = millis();
+  
+  if (now - lastPublish >= LECTURA_INTERVALO) {
+    lastPublish = now;
 
-    // Manejar parpadeo del LED
-    statusNotifier.manejarParpadeo(); 
+    sensorManager.leerTodos(currentData);
+    
+    String jsonPayload = sensorManager.generarJSON(currentData);
 
-    unsigned long now = millis();
-
-    if (now - lastPublish >= LECTURA_INTERVALO) {
-        lastPublish = now;
-
-        // Leer todos los sensores
-        sensorManager.leerTodos(currentData);
-
-        // Generar JSON
-        String jsonPayload = sensorManager.generarJSON(currentData);
-
-        // Publicar por MQTT
-        if (commsManager.publicar(TOPIC_PUB, jsonPayload)) {
-            Serial.println("✅ Publicado en MQTT");
-        } else {
-            Serial.println("❌ Error publicando en MQTT");
-        }
-
-        // Enviar JSON por HTTP POST
-        commsManager.enviarHTTP(jsonPayload);
-
-        // Mostrar JSON en serial
-        Serial.println("========== DATOS ENVIADOS ==========");
-        Serial.println(jsonPayload);
-        Serial.println("-----------------------------------");
+    if (commsManager.publicar(TOPIC_PUB, jsonPayload)) {
+      Serial.println("✅ Publicado con éxito en MQTT.");
+    } else {
+      Serial.println("❌ Error al publicar en MQTT.");
     }
 
-    delay(1); // Pequeño delay para estabilidad
+    Serial.println("========== DATOS ENVIADOS (JSON) ==========");
+    Serial.println(jsonPayload);
+    Serial.println("-------------------------------------------");
+  }
+
+  delay(1); 
 }
