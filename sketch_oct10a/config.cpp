@@ -47,16 +47,16 @@ const char* NEIGHBORHOOD = "San Blas-Canillejas";
 // ========================================================
 // === WiFi ===
 // ========================================================
-const char* WIFI_SSID = "cubicua";
-const char* WIFI_PASSWORD = "";
+const char* WIFI_SSID = "REDWIFI_3yEe";
+const char* WIFI_PASSWORD = "VictorJorge_123";
 
 // ========================================================
 // === MQTT ===
 // ========================================================
-const char* MQTT_SERVER = "192.168.1.131";
+const char* MQTT_SERVER = "192.168.0.34";
 const int MQTT_PORT = 1883;
 const char* MQTT_USER = "";
 const char* MQTT_PASS = "";
 
 const char* TOPIC_SUB = "esp32/prueba/comandos";
-const char* TOPIC_PUB = "esp32/prueba/data/WS_001";
+const char* TOPIC_PUB = "esp32/sensors/ST_2091/WS_001";

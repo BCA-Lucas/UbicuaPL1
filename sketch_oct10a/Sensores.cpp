@@ -90,6 +90,8 @@ void SensorManager::leerTodos(SensorData& data) {
     data.noise_analog = promedioAnalogico(PIN_SON_A);
     digitalWrite(PIN_LED_RUIDO, data.noise_analog > UMBRAL_VALOR_ALTO ? HIGH : LOW);
     data.rain_detected = digitalRead(PIN_LLU_D);
+    if (data.rain_detected == 0) {data.rain_detected = 1;}
+    if (data.rain_detected == 1) {data.rain_detected = 0;}
     data.wind_speed_kmh = 0.0;
     data.wind_direction_degrees = 0;
 }
